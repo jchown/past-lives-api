@@ -1,0 +1,28 @@
+name: default
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+
+
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Maven Dependencies
+        uses: advanced-security/maven-dependency-submission-action@v3.0.2
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run deploy script
+        run: ./bin/deploy.sh
+
+
