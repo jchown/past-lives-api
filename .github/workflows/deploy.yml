@@ -7,8 +7,6 @@ on:
 
 jobs:
 
-
-
   dependencies:
     runs-on: ubuntu-latest
     steps:
@@ -24,5 +22,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Run deploy script
         run: ./bin/deploy.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 
