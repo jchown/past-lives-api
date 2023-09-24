@@ -11,4 +11,6 @@ docker run -it --rm \
   maven:3-eclipse-temurin-17 \
   mvn compile dependency:copy-dependencies -DincludeScope=runtime
 
+echo "Packaging past-lives-api"
+
 docker build -t past-lives-api .
