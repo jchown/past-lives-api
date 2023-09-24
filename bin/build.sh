@@ -4,7 +4,7 @@ echo "Building past-lives-api"
 
 set -e
 
-docker run -it --rm \
+docker run --rm \
   --name past-lives-api \
   -v "$(pwd)":/src \
   -w /src \
