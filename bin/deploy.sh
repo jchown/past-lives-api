@@ -21,3 +21,7 @@ echo "Pushing past-lives-api"
 
 docker push "$repo:$hash"
 docker push "$repo:latest"
+
+echo "Switch endpoint to $repo:$hash"
+
+$aws lambda update-function-code --function-name past-lives-api --image-uri "$repo:$hash" --region eu-west-2
