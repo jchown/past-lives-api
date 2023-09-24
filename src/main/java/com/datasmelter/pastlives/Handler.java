@@ -66,11 +66,11 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
 
         int date = event.dateOfBirth();
         boolean found = false;
-        for (int i = 1; i < 30 ; i++)
+        for (int i = 1; i <= 30 ; i++)
         {
-            if (deadPeople.containsKey(Integer.toString(date + i)))
+            if (deadPeople.containsKey(Integer.toString(date - i)))
             {
-                date = date + i;
+                date = date - i;
                 found = true;
                 break;
             }
