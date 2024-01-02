@@ -3,6 +3,7 @@ package com.datasmelter.pastlives;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.sentry.Sentry;
 import org.apache.commons.codec.digest.MurmurHash3;
 
 import java.io.FileInputStream;
@@ -38,6 +39,11 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
 
     public Handler()
     {
+        Sentry.init(options -> {
+            options.setDsn("https://33855b057b2346e7f8a8b51d0ef11c98@o4506172979806208.ingest.sentry.io/4506490865188864");
+            options.setTracesSampleRate(1.0);
+        });
+
         try (var zip = new ZipFile("dead-people.zip"))
         {
             var entry = zip.getEntry("dead-people.json");
