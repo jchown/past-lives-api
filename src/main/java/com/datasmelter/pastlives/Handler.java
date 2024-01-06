@@ -9,12 +9,13 @@ import org.apache.commons.codec.digest.MurmurHash3;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipFile;
 
-record PersonRequest(int dateOfBirth, String name)
+record PersonRequest(int date, String name, boolean famous)
 {
 }
 
@@ -26,7 +27,11 @@ record Person(String id, int born, int died)
 {
 }
 
-class DeadPeople extends HashMap<String, List<Person>>
+record DeadPerson(String id, int born)
+{
+}
+
+class DeadPeople extends HashMap<String, List<DeadPerson>>
 {
 }
 
@@ -35,7 +40,7 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
     private final DeadPeople deadPeople;
     private final PersonResponse NoOne = new PersonResponse(0, 0, "");
     private final ObjectMapper mapper = new ObjectMapper();
-    private final Charset utf8 = Charset.forName("UTF-8");
+    private final Charset utf8 = StandardCharsets.UTF_8;
 
     public Handler()
     {
@@ -46,7 +51,7 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
 
         try (var zip = new ZipFile("dead-people.zip"))
         {
-            var entry = zip.getEntry("dead-people.json");
+            var entry = zip.getEntry("dead-people-sorted.json");
             try (var stream = zip.getInputStream(entry))
             {
                 var bytes = stream.readAllBytes();
@@ -54,8 +59,10 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
                 deadPeople = mapper.readValue(json, DeadPeople.class);
 
                 System.out.println("Loaded " + deadPeople.size() + " dates of death");
+
                 var first = deadPeople.keySet().iterator().next();
                 var died = deadPeople.get(first);
+
                 System.out.println("e.g. " + died.size() + " people died on " + first + ": " + died);
             }
         }
@@ -70,7 +77,7 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
     {
         System.out.println("Received: " + event);
 
-        int date = event.dateOfBirth();
+        int date = event.date();
         boolean found = false;
         for (int i = 1; i <= 7 ; i++)
         {
@@ -91,8 +98,26 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
 
         int hash = MurmurHash3.hash32x86(event.name().getBytes(utf8)) & 0x7fff_ffff;
 
-        var person = people.get(hash % people.size());
+        var person = event.famous() ? getFamous(people, hash) : getRandom(people, hash);
 
-        return new PersonResponse(person.born(), person.died(), person.id());
+        return new PersonResponse(person.born(), date, person.id());
+    }
+
+    private DeadPerson getRandom(List<DeadPerson> people, int hash)
+    {
+        return people.get(hash % people.size());
+    }
+
+    private DeadPerson getFamous(List<DeadPerson> people, int hash)
+    {
+        for (DeadPerson person : people)
+        {
+            if ((hash & 1) == 0)
+                return person;
+
+            hash = hash >> 1;
+        }
+
+        return people.get(0);
     }
 }
