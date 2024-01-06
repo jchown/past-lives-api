@@ -23,10 +23,6 @@ record PersonResponse(int dateOfBirth, int dateOfDeath, String id)
 {
 }
 
-record Person(String id, int born, int died)
-{
-}
-
 record DeadPerson(String id, int born)
 {
 }
