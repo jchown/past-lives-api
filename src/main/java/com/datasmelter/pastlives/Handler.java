@@ -6,22 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.sentry.Sentry;
 import org.apache.commons.codec.digest.MurmurHash3;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.zip.ZipFile;
-
-record PersonRequest(int date, String name, boolean famous)
-{
-}
-
-record PersonResponse(int dateOfBirth, int dateOfDeath, String id)
-{
-}
 
 record DeadPerson(String id, int born)
 {
@@ -35,7 +24,6 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
 {
     private final DeadPeople deadPeople;
     private final PersonResponse NoOne = new PersonResponse(0, 0, "");
-    private final ObjectMapper mapper = new ObjectMapper();
     private final Charset utf8 = StandardCharsets.UTF_8;
 
     public Handler()
@@ -44,6 +32,8 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
             options.setDsn("https://33855b057b2346e7f8a8b51d0ef11c98@o4506172979806208.ingest.sentry.io/4506490865188864");
             options.setTracesSampleRate(1.0);
         });
+
+        var mapper = new ObjectMapper();
 
         try (var zip = new ZipFile("dead-people.zip"))
         {
