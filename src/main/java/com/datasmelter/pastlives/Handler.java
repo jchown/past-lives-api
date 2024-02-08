@@ -22,6 +22,7 @@ class DeadPeople extends HashMap<String, List<DeadPerson>>
 
 public class Handler implements RequestHandler<PersonRequest, PersonResponse>
 {
+    private final String version;
     private final DeadPeople deadPeople;
     private final PersonResponse NoOne = new PersonResponse(0, 0, "");
     private final Charset utf8 = StandardCharsets.UTF_8;
@@ -32,6 +33,8 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
             options.setDsn("https://33855b057b2346e7f8a8b51d0ef11c98@o4506172979806208.ingest.sentry.io/4506490865188864");
             options.setTracesSampleRate(1.0);
         });
+
+        version = getClass().getPackage().getImplementationVersion();
 
         var mapper = new ObjectMapper();
 
@@ -62,6 +65,9 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
     public PersonResponse handleRequest(PersonRequest event, Context context)
     {
         System.out.println("Received: " + event);
+
+        if (event.isPing())
+            return new PersonResponse(0, 0, "PONG: v" + version);
 
         int date = event.date();
         boolean found = false;
