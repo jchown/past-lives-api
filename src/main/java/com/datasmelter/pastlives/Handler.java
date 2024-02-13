@@ -6,10 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.sentry.Sentry;
 import org.apache.commons.codec.digest.MurmurHash3;
 
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.zip.ZipFile;
 
 record DeadPerson(String id, int born)
@@ -23,6 +25,8 @@ class DeadPeople extends HashMap<String, List<DeadPerson>>
 public class Handler implements RequestHandler<PersonRequest, PersonResponse>
 {
     private final String version;
+    private final String buildDate;
+
     private final DeadPeople deadPeople;
     private final PersonResponse NoOne = new PersonResponse(0, 0, "");
     private final Charset utf8 = StandardCharsets.UTF_8;
@@ -34,7 +38,27 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
             options.setTracesSampleRate(1.0);
         });
 
-        version = getClass().getPackage().getImplementationVersion();
+        Sentry.captureMessage("Starting up");
+
+        String version = "Unknown", buildDate = "Unknown";
+        try (InputStream stream = getClass().getResourceAsStream("/version.txt"))
+        {
+            var versionFile = new Properties();
+            versionFile.load(stream);
+            version = versionFile.get("version").toString();
+            buildDate = versionFile.get("build.date").toString();
+        }
+        catch (Exception e)
+        {
+            version = "Unknown: " + e.getMessage();
+        }
+        finally
+        {
+            this.version = version;
+            this.buildDate = buildDate;
+        }
+
+        Sentry.captureMessage("Version: " + this.version + " built on " + this.buildDate);
 
         var mapper = new ObjectMapper();
 
