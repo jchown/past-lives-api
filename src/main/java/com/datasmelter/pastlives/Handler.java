@@ -38,8 +38,6 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
             options.setTracesSampleRate(1.0);
         });
 
-        Sentry.captureMessage("Starting up");
-
         String version = "Unknown", buildDate = "Unknown";
         try (InputStream stream = getClass().getResourceAsStream("/version.txt"))
         {
@@ -57,8 +55,6 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
             this.version = version;
             this.buildDate = buildDate;
         }
-
-        Sentry.captureMessage("Version: " + this.version + " built on " + this.buildDate);
 
         var mapper = new ObjectMapper();
 
@@ -91,7 +87,7 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
         System.out.println("Received: " + event);
 
         if (event.isPing())
-            return new PersonResponse(0, 0, "PONG: v" + version);
+            return new PersonResponse(0, 0, "PONG: v" + version + ", built " + buildDate);
 
         int date = event.date();
         boolean found = false;
