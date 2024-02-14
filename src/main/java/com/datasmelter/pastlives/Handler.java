@@ -39,7 +39,7 @@ public class Handler implements RequestHandler<PersonRequest, PersonResponse>
         });
 
         String version = "Unknown", buildDate = "Unknown";
-        try (InputStream stream = getClass().getResourceAsStream("/version.txt"))
+        try (InputStream stream = getClass().getResourceAsStream("/version.properties"))
         {
             var versionFile = new Properties();
             versionFile.load(stream);
